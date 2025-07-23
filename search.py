@@ -19,6 +19,7 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -70,37 +71,72 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
+    from util import Stack  # Import the Stack data structure to use as the frontier (LIFO for DFS)
 
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
+    # Initialize the frontier with a stack
+    frontier = Stack()
 
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
+    # Get the starting state from the problem
+    start_state = problem.getStartState()
 
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-    "*** YOUR CODE HERE ***"
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    util.raiseNotDefined()
+    # Push the starting state onto the stack along with an empty path (no actions taken yet)
+    frontier.push((start_state, []))
+
+    # Set of states that have been fully explored (visited and expanded)
+    explored = set()
+
+    # Set of states currently in the frontier (used to prevent duplicate pushes)
+    frontier_states = set([start_state])
+
+    # Begin the DFS search loop
+    while not frontier.isEmpty():
+        # Pop the most recently added state from the frontier
+        state, path = frontier.pop()
+
+        # Remove it from the frontier_states since we're now exploring it
+        frontier_states.discard(state)
+
+        # If the current state is the goal, return the path that got us here
+        if problem.isGoalState(state):
+            return path  # Success: return list of actions (e.g. ['North', 'East', ...])
+
+        # Only expand this node if it hasn't been explored before
+        if state not in explored:
+            # Mark the state as explored so we don't revisit it
+            explored.add(state)
+
+            # Get all successors of the current state
+            # Each successor is a (next_state, action, step_cost) tuple
+            for successor, action, cost in reversed(problem.getSuccessors(state)):
+                # Only consider successors that have not been explored
+                # and are not already in the frontier (to avoid redundant work)
+                # use the reversed function to ensure we traverse the left-most node first to align with the test case
+                if successor not in explored and successor not in frontier_states:
+                    # Push the new state and the path taken to reach it
+                    frontier.push((successor, path + [action]))
+                    # Also track that this state is now in the frontier
+                    frontier_states.add(successor)
+
+    # If the loop ends, it means no path to the goal was found
+    # Return an empty list to indicate failure (optional in Pacman)
+    return []
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
+
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -108,6 +144,7 @@ def nullHeuristic(state, problem=None):
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
     return 0
+
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
