@@ -127,9 +127,41 @@ def depthFirstSearch(problem):
 
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import Queue  # FIFO queue for BFS
+
+    # Get the initial state of the problem
+    start_state = problem.getStartState()
+
+    # Special case: if the start is already the goal, return an empty path
+    if problem.isGoalState(start_state):
+        return []
+
+    # Initialize the frontier with the starting node and path
+    frontier = Queue()
+    frontier.push((start_state, []))  # node = (state, path)
+
+    # Set of visited/reached states
+    reached = set([start_state])
+
+    # Main BFS loop
+    while not frontier.isEmpty():
+        # Pop (Dequeue) the oldest node (FIFO)
+        state, path = frontier.pop()
+
+        # Expand the node: get its children (successors)
+        for successor, action, cost in problem.getSuccessors(state):
+            if successor not in reached:
+                # Check if successor is goal before enqueuing
+                if problem.isGoalState(successor):
+                    return path + [action]  # Found goal
+
+                # Mark as reached and enqueue the node
+                reached.add(successor)
+                frontier.push((successor, path + [action]))
+
+    # No path found to the goal
+    return []
+
 
 
 def uniformCostSearch(problem):
