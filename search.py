@@ -165,9 +165,49 @@ def breadthFirstSearch(problem):
 
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue  # Uses priority queue for cost-based expansion
+
+    # Step 1: Get the start state
+    start_state = problem.getStartState()
+
+    # Step 2: Special case — start is already the goal
+    if problem.isGoalState(start_state):
+        return []
+
+    # Step 3: Initialize the frontier with a priority queue
+    # Each item: (state, path); priority = path cost so far
+    frontier = PriorityQueue()
+    frontier.push((start_state, []), 0)  # Priority = 0 for start node
+
+    # Step 4: Track visited states and their best known cost
+    visited_cost = {start_state: 0}  # Maps state → cost
+
+    # Step 5: UCS loop
+    while not frontier.isEmpty():
+        state, path = frontier.pop()
+
+        # Calculate total cost of path to this state
+        current_cost = problem.getCostOfActions(path)
+
+        # Step 6: Check for goal
+        if problem.isGoalState(state):
+            return path  # ✅ Return complete path to goal
+
+        # Step 7: Explore successors
+        for successor, action, step_cost in problem.getSuccessors(state):
+            new_path = path + [action]
+            new_cost = problem.getCostOfActions(new_path)
+
+            # Only add to frontier if:
+            # (1) It's a new state OR
+            # (2) We found a cheaper path than before
+            if successor not in visited_cost or new_cost < visited_cost[successor]:
+                visited_cost[successor] = new_cost
+                frontier.push((successor, new_path), new_cost)
+
+    # Step 8: Return failure if no solution found
+    return []
+
 
 
 def nullHeuristic(state, problem=None):
