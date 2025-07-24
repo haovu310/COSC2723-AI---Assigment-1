@@ -111,10 +111,9 @@ def depthFirstSearch(problem):
 
             # Get all successors of the current state
             # Each successor is a (next_state, action, step_cost) tuple
-            for successor, action, cost in reversed(problem.getSuccessors(state)):
+            for successor, action, cost in (problem.getSuccessors(state)):
                 # Only consider successors that have not been explored
                 # and are not already in the frontier (to avoid redundant work)
-                # use the reversed function to ensure we traverse the left-most node first to align with the test case
                 if successor not in explored and successor not in frontier_states:
                     # Push the new state and the path taken to reach it
                     frontier.push((successor, path + [action]))
